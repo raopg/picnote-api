@@ -34,8 +34,12 @@ def login(key):
     if request.method == "POST":
         username = request.form.getlist("username")
         password = request.form.getlist("password")
-        
+        prof_id = db.login(username,password)
+        if prof_id != None:
+            return jsonify({'response':'200','prof_id':prof_id})
     return jsonify({'response':'403','message':'This function only supports the POST method'})
+
+
 @app.route('/api/<string:key>/<string:hashed>/add_course', methods = ['POST'])
 def add_course(key,hashed):
     response = authenticate_api_key(key)
@@ -43,7 +47,7 @@ def add_course(key,hashed):
         return response
     if request.method == "POST":
         course_name = request.form.getlist("cname")
-        section_list = request.form.getlist("slist")
+        section_list = request.form.getlist("")
         
 
 @app.route('/api/<string:key>/<string:hashed>/post_note', methods=['POST'])
