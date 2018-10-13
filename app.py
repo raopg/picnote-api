@@ -1,16 +1,21 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, url_for
 import json
-from flask_s3 import FlaskS3
 import DatabaseUtilities
+from flask_s3 import FlaskS3
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 
 db = DatabaseUtilities.DatabaseUtilities()
 
 app = Flask(__name__)
-app.config['FLASKS3_BUCKET_NAME'] = 'picnoteimages'
-s3app = FlaskS3()
-s3app.init_app(app)
+
+photos = UploadSet('photos', IMAGES
+app.config['UPLOADED_PHOTOS'] = 'static/img'
+configure_uploads(app,photos)
+s3_app = FlaskS3()
+s3_app.init_app(app)
+
 @app.route('/', methods=['GET'])
-#Inner facing REST API with no docs. Simple landing page
+#Inner facing RESTful API for picNote database access. Simple landing page
 def index():
     return jsonify({'response': '200', 'message' : 'landing page'})
 
@@ -66,13 +71,16 @@ def post_note(key,course_id):
     if(json_return['response'] != '200'):
         return json_return
     if request.method == "POST":
-        img_link = request.form.getlist("img_link")
+        if 'note_img' in request.files:
+            global img_file
+            img_file = photos.save((secure_filename(request.files['note_img'].filename)))
+
         note_text = request.form.getlist("note_text")
 
         # Line [77] generates the s3 bucket link to store in the database
 
-        #s3_url = app.url_for(img_link) 
-        #db.write_note_entry(s3_url,note_text,course_id)
+        s3_url = app.url_for(img_file)
+        db.write_note_entry(s3_url,note_text,course_id)
     
         
 '''Gets notes depending on the request hash key. If the key belongs to none of the participating groups, returns a 404 error'''
