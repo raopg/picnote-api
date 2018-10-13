@@ -111,16 +111,77 @@ class DatabaseUtilities():
 
     ''' Methods to write course information '''
     def write_course_entry(self, class_name,prof_id):
-        pass
-        #TODO: Put SQL query to write course
+        '''
+        Method that writes courses for a professor
+        :param class_name: the name of the class to enter
+        :param prof_id: the id of the professor
+        '''
+        try:
+            # Creates the database cursor responsibile for executing query and extracting data
+            with self.connection.cursor() as cursor:
+                sql = "INSERT INTO COURSE(CLASS_NAME,FK_PROFESSOR_COURSE) VALUES(%s,%s)"
+                cursor.execute(sql, (class_name,prof_id))
+                # Obtains all of the data from the query
+                self.connection.commit()
+                results = True
 
-    def write_section_entry(self, course_id,section_name):
-        pass
-        #TODO: Put SQL query to write section
+        except Exception as e:
+            print(e)
+            # Catches the exceptions thrown by database errors
+            results = False
+
+        finally:
+            # Returns the result of the query or error message
+            return results
+
+    def write_section_entry(self,section_name, course_id):
+        '''
+        Method that writes notes to a specific section
+        :param section_name: the name of the class to enter
+        :param course_id: the id of the course
+        '''
+        try:
+            # Creates the database cursor responsibile for executing query and extracting data
+            with self.connection.cursor() as cursor:
+                sql = "INSERT INTO SECTION(SECTION_NAME,FK_COURSE_SECTION) VALUES(%s,%s);"
+                cursor.execute(sql, (section_name, course_id))
+                # Obtains all of the data from the query
+                self.connection.commit()
+                results = True
+
+        except Exception as e:
+            print(e)
+            # Catches the exceptions thrown by database errors
+            results = False
+
+        finally:
+            # Returns the result of the query or error message
+            return results
 
     def write_note_entry(self,desc,img,section_id):
-        pass
-        # TODO: Put SQL query to write section
+        '''
+        Method that writes a note for a specific section
+        :param desc: the name of the class to enter
+        :param img: the id of the course
+        :param section_id: the id for the section
+        '''
+        try:
+            # Creates the database cursor responsibile for executing query and extracting data
+            with self.connection.cursor() as cursor:
+                sql = "INSERT INTO NOTE(DESCRIPTION,IMG,FK_SECTION_NOTE) VALUES (%s,%s,%s);"
+                cursor.execute(sql, (desc,img,section_id))
+                # Obtains all of the data from the query
+                self.connection.commit()
+                results = True
+
+        except Exception as e:
+            print(e)
+            # Catches the exceptions thrown by database errors
+            results = False
+
+        finally:
+            # Returns the result of the query or error message
+            return results
 
 
 if __name__=="__main__":
@@ -129,3 +190,6 @@ if __name__=="__main__":
     print(dbu.read_notes_by_section(1))
     print(dbu.read_notes_by_course(2))
     print(dbu.read_notes_by_prof(2))
+    #print(dbu.write_course_entry("ICS 503",2))
+    #print(dbu.write_section_entry("YABOI",3))
+    #print(dbu.write_note_entry("This is about nlp","zot.ly.bit",3))
