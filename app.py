@@ -1,7 +1,11 @@
 from flask import Flask, jsonify, request
 import json
+from flask_s3 import FlaskS3
 
 app = Flask(__name__)
+app.config['FLASKS3_BUCKET_NAME'] = 'picnoteimages'
+s3app = FlaskS3()
+s3app.init_app(app)
 @app.route('/', methods=['GET'])
 #Inner facing REST API with no docs. Simple landing page
 def index():
@@ -60,6 +64,9 @@ def post_note(key,hashed):
     if request.method == "POST":
         img_link = request.form.getlist("img_link")
         note_text = request.form.getlist("note_text")
+        s3_url = app.url_for(img_link)
+        db.post_note(s3_url,note_text,hashed)
+    
         
 
 @app.route('/api/<string:key>/<string:hashed>/get_notes', methods=['GET'])
