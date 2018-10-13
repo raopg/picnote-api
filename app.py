@@ -34,12 +34,7 @@ def login(key):
     if request.method == "POST":
         username = request.form.getlist("username")
         password = request.form.getlist("password")
-        try:
-            prof = Professor(db).login(username,password)
-        except ProfessorMissingException:
-            return jsonify({'response':'401','message':'Professor does not exist'})
-        else:
-            return jsonify({'response':'200','hashed_id':prof.get_hashed_id()})
+        
     return jsonify({'response':'403','message':'This function only supports the POST method'})
 @app.route('/api/<string:key>/<string:hashed>/add_course', methods = ['POST'])
 def add_course(key,hashed):
@@ -49,27 +44,24 @@ def add_course(key,hashed):
     if request.method == "POST":
         course_name = request.form.getlist("cname")
         section_list = request.form.getlist("slist")
-        try:
-            pass
-        except ProfessorMissingException:
-            return jsonify({'response':'401','message':'Professor does not exist'})
-        else:
-            return jsonify({'reponse':'200','class_name':class_name,'section_list':section_list,'message':'Class created successfully'})
+        
 
 @app.route('/api/<string:key>/<string:hashed>/post_note', methods=['POST'])
 def post_note(key,hashed):
     json_return = authenticate_api_key(key)
     if(json_return['response'] != '200'):
-        return response
+        return json_return
     if request.method == "POST":
         img_link = request.form.getlist("img_link")
         note_text = request.form.getlist("note_text")
-        try:
-            note = Note(img_link,note_text,hashed)
-        except CourseMissingException:
-            return jsonify({'response':'404','message':'Class does not exist'})
+        
 
-@app.route('/api/<string:key>/<string:hashed>/get_notes')
+@app.route('/api/<string:key>/<string:hashed>/get_notes', methods=['GET'])
+def get_notes(key, hashed):
+    json_return = authenticate_api_key(key)
+    if(json_return['response'] != '200'):
+        return json_return
+    return 
 
 
 
