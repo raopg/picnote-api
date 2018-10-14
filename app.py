@@ -79,8 +79,8 @@ def prof_add_course(key,prof_id):
 
 
 '''Posts a note with the course code supplied as a request parameter'''
-@app.route('/api/<string:key>/<string:course_id>/post_note', methods=['POST'])
-def post_note(key,course_id):
+@app.route('/api/<string:key>/<string:section_id>/post_note', methods=['POST'])
+def post_note(key,section_id):
     response = authenticate_api_key(key)
     if(response['response'] != '200'):
         return jsonify(response)
@@ -91,6 +91,7 @@ def post_note(key,course_id):
 
         print(request.form)
         #TODO: FINISH UP WRITING TO THE DATABASE FOR THE PROPER ROUTING
+        db.write_note_entry(request.form["note"],filename,section_id)
 
     return jsonify({'response':'200','message':'successfully written a note'})
     
