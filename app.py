@@ -1,15 +1,16 @@
-from flask import Flask, jsonify, request, url_for
+from flask import Flask, jsonify, request
 import json
-import DatabaseUtilities
+from DatabaseUtilities import DatabaseUtilities
 from flask_s3 import FlaskS3
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+from werkzeug.utils import secure_filename
 
-db = DatabaseUtilities.DatabaseUtilities()
+db = DatabaseUtilities()
 
 app = Flask(__name__)
 
-photos = UploadSet('photos', IMAGES
-app.config['UPLOADED_PHOTOS'] = 'static/img'
+photos = UploadSet('photos', IMAGES)
+app.config['UPLOADED_PHOTOS_DEST'] = './static/img'
 configure_uploads(app,photos)
 s3_app = FlaskS3()
 s3_app.init_app(app)
@@ -26,19 +27,22 @@ def api_landing():
 '''Validates the API key appended to the URL. This function will be repeatedly called in each route to verify that the URL is built correctly by the end user'''
 @app.route('/api/<string:key>', methods = ['GET'])
 def authenticate_api_key(key):
-    valid_keys = []
+    #TODO: Move authentication to separate method and have it return a dict
+    #TODO: Make the actual handler function, be responsible for returning jsonify
+    #TODO: POTENTIAL ISSUES WITH LOCKING. MAKE SURE TO MOVE THIS FILE OPENING TO THE TOP OF THE APP WHEN YOU LOAD UP
     with open('creds.json','r') as f:
         valid_keys = json.load(f)
     if valid_keys['username'] == key:
-        return jsonify({'response':'200','message':'API Key Verified'})
-    return jsonify({'response':'401','message':'Authentication failed: Illegal API Key'})
+        return {'response':'200','message':'API Key Verified'}
+    #TODO: FIX BECAUSE IT GIVES ISSUES WITH
+    return {'response':'401','message':'Authentication failed: Illegal API Key'}
 
 '''Logs the professor by taking the username and password. Returns the professor ID if the authentication is successful. 403 error if authentication fails'''
 @app.route('/api/<string:key>/login', methods = ['POST'])
 def login(key):
     response = authenticate_api_key(key)
     if(response['response'] != '200'):
-        return response
+        return jsonify(response)
     if request.method == "POST":
         username = request.form.getlist("username")
         password = request.form.getlist("password")
@@ -86,9 +90,13 @@ def post_note(key,course_id):
 '''Gets notes depending on the request hash key. If the key belongs to none of the participating groups, returns a 404 error'''
 @app.route('/api/<string:key>/<string:hashed>/get_notes', methods=['GET'])
 def get_notes_by_id(key, hashed):
+    print(db.read_notes_by_prof(hashed))
+    #TODO: Split up the functions below so that they are in different routes
     json_return = authenticate_api_key(key)
+    print(json_return['response'])
     if(json_return['response'] != '200'):
-        return json_return
+        return jsonify(json_return)
+
     if db.prof_id_exists(hashed):
         return jsonify(db.read_notes_by_prof(hashed))
     elif db.course_id_exists(hashed):
@@ -98,8 +106,5 @@ def get_notes_by_id(key, hashed):
     else:
         return jsonify({'response':'404','message':'Hashed ID does not match a professor, student or section'})
 
-
-
-
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(debug=True, port=8080) #TAKE OUT DEBUG IN PRODUCTION

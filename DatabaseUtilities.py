@@ -1,5 +1,6 @@
 import pymysql.cursors
 
+#TODO: Build the isExists functions for prof, course, section
 class DatabaseUtilities():
 
     def __init__(self):
