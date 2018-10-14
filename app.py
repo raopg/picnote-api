@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request,render_template, redirect
+from flask import Flask, jsonify, request,render_template, redirect, session
 import json
 from DatabaseUtilities import DatabaseUtilities
 from flask_s3 import FlaskS3
@@ -13,7 +13,7 @@ photos = UploadSet('photos', IMAGES)
 app.config['UPLOADED_PHOTOS_DEST'] = './static/img'
 configure_uploads(app,photos)
 
-session = {}
+
 
 #Loads credentials for the API key for the single user (assumption of one user for testing)
 with open('creds.json','r') as f:
@@ -108,28 +108,23 @@ def get_notes_by_prof(key,prof_id):
 #TODO: FINISH THE JSON.DUMPS ON THE BOTTOM
 @app.route('/api/<string:key>/<string:course_id>/get_notes_by_course',methods= ['GET'])
 def get_notes_by_course(key,course_id):
-    json_return = authenticate_api_key(key)
-    if(json_return['response'] != '200'):
-        return jsonify(json_return)
-    
     if db.course_id_exists(course_id):
-        return json.dumps((db.read_notes_by_course(course_id)))
-    return jsonify({'response':'200'})
+        session[course_id] = db.read_notes_by_course(course_id)
+
+    return render_template('/api/{}/{}/get_notes_by_section'.format(key,session[course_id][0]))
 
 @app.route('/api/<string:key>/<string:section_id>/get_notes_by_section',methods=['GET'])
 def get_notes_by_section(key,section_id):
-    json_return = authenticate_api_key(key)
-    if(json_return['response'] != '200'):
-        return jsonify(json_return)
-    if db.section_id_exists(section_id):
-        return json.dumps(db.read_notes_by_section(section_id))
-    return jsonify({'response':'200'})
+    return redirect('/rendersection.html')
 
 @app.route('/api/test')
 def test_route():
     return render_template("index.html")
 
 
+@app.route('/api/<string:key>/<string:section_id>/rendersection', methods=['GET'])
+def render_section_template(key,section_id):
+    return render_template('rendersection.html')
 @app.route('/<prof_id>/class')
 def goClass(prof_id):
     return render_template("createclass.html")
