@@ -4,8 +4,6 @@ import pymysql.cursors
 class DatabaseUtilities():
 
     def __init__(self):
-        #TODO: place the Python dictionary in charge of credentials here
-        #TODO: place credentials in the environmental variables
         self.connection = pymysql.connect(host='localhost',
                              user='root',
                              password='pass',
@@ -13,7 +11,7 @@ class DatabaseUtilities():
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
 
-    ''' Methods for reading course information '''
+    '''Methods for reading course information'''
     def read_professor_id(self,username,password):
         '''
         Method that reads the professor id of the given professor based on their username and password
@@ -110,7 +108,7 @@ class DatabaseUtilities():
             # Returns the result of the query or error message
             return results
 
-    ''' Methods to write course information '''
+    '''Methods to write course information'''
     def write_course_entry(self, class_name,prof_id):
         '''
         Method that writes courses for a professor
@@ -184,6 +182,77 @@ class DatabaseUtilities():
             # Returns the result of the query or error message
             return results
 
+    '''Methods  to check for the existence of ids'''
+    def prof_id_exists(self,prof_id):
+        '''
+        Method that checks if a professor exists in the database
+        :param prof_id: Integer indicating the professor number
+        :return: result: Boolean indicating if prof exists
+        '''
+        try:
+            #Creates the database cursor responsibile for executing query and extracting data
+            with self.connection.cursor() as cursor:
+                sql = "SELECT * FROM PROFESSOR WHERE PROF_ID=%s"
+                cursor.execute(sql,prof_id)
+                #Obtains all of the data from the query
+                results = cursor.fetchall()
+
+        except Exception as e:
+            print(e)
+            #Catches the exceptions thrown by database errors
+            results ={"Error":"Could not retrieve JOBS from the database"}
+
+        finally:
+            #Returns the boolean value relating to if there is more than one result from query
+            return len(results)>0
+
+    def course_id_exists(self, course_id):
+        '''
+        Method that checks if a course exists in the database
+        :param course_id: Integer that is the id of a course
+        :return result: Boolean that is the result of the course
+        '''
+        try:
+            # Creates the database cursor responsibile for executing query and extracting data
+            with self.connection.cursor() as cursor:
+                sql = "SELECT * FROM COURSE WHERE COURSE_ID=%s"
+                cursor.execute(sql, (course_id))
+                # Obtains all of the data from the query
+                results = cursor.fetchall()
+
+        except Exception as e:
+            print(e)
+            # Catches the exceptions thrown by database errors
+            results = {"Error": "Could not retrieve JOBS from the database"}
+
+        finally:
+            #Returns the boolean value relating to if there is more than one result from query
+            print(results)
+            return len(results)>0
+
+    def section_id_exists(self, section_id):
+        '''
+        Method that checks if a section exists in the database
+        :param section_id: Integer that is the id of a section
+        :return result: Boolean that is the result of the section
+        '''
+        try:
+            # Creates the database cursor responsibile for executing query and extracting data
+            with self.connection.cursor() as cursor:
+                sql = "SELECT * FROM SECTION WHERE SECTION_ID=%s"
+                cursor.execute(sql, (section_id))
+                # Obtains all of the data from the query
+                results = cursor.fetchall()
+
+        except Exception as e:
+            print(e)
+            # Catches the exceptions thrown by database errors
+            results = {"Error": "Could not retrieve JOBS from the database"}
+
+        finally:
+            #Returns the boolean value relating to if there is more than one result from query
+            print(results)
+            return len(results)>0
 
 if __name__=="__main__":
     dbu = DatabaseUtilities()
@@ -194,3 +263,6 @@ if __name__=="__main__":
     #print(dbu.write_course_entry("ICS 503",2))
     #print(dbu.write_section_entry("YABOI",3))
     #print(dbu.write_note_entry("This is about nlp","zot.ly.bit",3))
+    print(dbu.prof_id_exists(2))
+    print(dbu.course_id_exists(7))
+    print(dbu.section_id_exists(6))
