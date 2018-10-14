@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Choose Section</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body id="background">
+<section>
+  <nav>
+    <div class="nav-wrapper" style="background-color: #FA8072">
+      <img src="assets/logo.png" style="height: 60px; position: fixed; weight: auto; padding-left: 30px; padding-top: 10px">
+      <text class="brand-logo" style="padding-left: 100px">PicNote</text>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">Menu</i></a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="createclass.html">Create Class</a></li>
+        <li><a href="landingpage.html">Dashboard</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#">Notes</a></li>
+        <li><a href="login.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <ul class="sidenav" id="mobile-demo">
+    <li><a href="#">Log In</a></li>
+    <li><a href="#">About Us</a></li>
+    <!-- <li><a href="#">Javascript</a></li>
+    <li><a href="#">Mobile</a></li> -->
+  </ul>
+</section>
+<!---START OF CARD 1-->
+
+
+<section style="display: block; margin: auto; width: 40%; padding-top: 10%">
+  <h4> Your Classes: CS 163 & CS 190</h4>
+  <br>
+  <p><i>How many sections do you have?</i></p>
+  <input name="sections" type="text" placeholder= "Enter a number between 1 and 6.">
+  <br><br>
+  <a href="landingpage.html" class="btn btn-primary" style="display:block; margin: auto;" >Submit</a>
+  <script>
+    var count = document.getElementById("sections").innerHTML; //this is a string
+    var possibleSections = ["a","b","c","d","e","f", "g", "h", "i", "j"]; //professor prob not gonna have more than 10 sections
+    //slice() does not change the original array
+    var listOfSections = possibleSections(0,count);
+
+
+    $.ajax({
+     url: 'https://picnote.io/api/API_KEY/',
+     prof_id: 698709,
+     hashed: listOfSections;
+     data: {
+        format: 'json'
+     },
+     success: function(data) {
+       console.log("hi")
+       // if login successful, then this happens:
+       data.preventDefault();
+       window.location.href = "landingpage.html?prof_id=" + profID; // may have issues with TYPE issues
+     },
+     type: 'POST'
+    });
+
+  </script>
+</section>
+<script src="js/addClass.js" ></script>
+</body>
+</html>
