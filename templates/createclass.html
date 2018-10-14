@@ -25,11 +25,11 @@
       <text class="brand-logo" style="padding-left: 100px">PicNote</text>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">Menu</i></a>
       <ul class="right hide-on-med-and-down">
-        <li><a href="createclass.html">Create Class</a></li>
-        <li><a href="landingpage.html">Dashboard</a></li>
-        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#">Create Class</a></li>
+        <li><a href="#">Dashboard</a></li>
+        <li><a href="#">Profile</a></li>
         <li><a href="#">Notes</a></li>
-        <li><a href="login.html">Logout</a></li>
+        <li><a href="#">Logout</a></li>
       </ul>
     </div>
   </nav>
@@ -66,28 +66,10 @@
   <!-- END DROPDOWN FROM MATERIALIZE -->
 <input name="cname" type="text" placeholder= "Example: CSE 110">
 <br><br>
-<a href="choosesection.html" class="btn btn-primary" style="display:block; margin: auto;" >Submit</a>
+<a href="#" class="btn btn-primary" style="display:block; margin: auto;" >Submit</a>
 
 </section>
 <script src="js/addClass.js" ></script>
-<script>
 
-  $.ajax({
-   url: 'https://picnote.io/api/API_KEY/',
-   prof_id: 698709,
-   hashed: document.getElementById("cname").innerHTML, // not sure what hashed does
-   data: {
-      format: 'json'
-   },
-   success: function(data) {
-     // if login successful, then this happens:
-     data.preventDefault();
-     var courseID = data.course_id; //correct pathway?
-     window.location.href = "chooseselection.html?prof_id=" + profID + "?courses=" + courseID; // may have issues with TYPE issues
-   },
-   type: 'POST'
-  });
-
-</script>
 </body>
 </html>
