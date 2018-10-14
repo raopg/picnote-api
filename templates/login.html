@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Login</title>
+<meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body class = "login-background">
+<section>
+  <nav>
+    <div class="nav-wrapper" style="background-color: #FA8072">
+      <img src="../static/img/logo.png" style="height: 55px; position: sticky; weight: auto; padding-left: 30px; padding-top: 2px">
+      <text class="brand-logo" style="padding-left: 20px">PicNote</text>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">Menu</i></a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="#">Log in </a></li>
+
+        <li><a href="#">About Us</a></li>
+        <!-- <li><a href="#">Actions</a></li>
+        <li><a href="#">Menu</a></li> -->
+      </ul>
+    </div>
+  </nav>
+
+  <ul class="sidenav" id="mobile-demo">
+    <li><a href="#">Log in</a></li>
+    <li><a href="#">About Us</a></li>
+    <!-- <li><a href="#">Javascript</a></li>
+    <li><a href="#">Mobile</a></li> -->
+  </ul>
+</section>
+<section style="display: block; margin: auto; width: 40%; padding-top: 5%">
+  <div class = "row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 >Log in</h5>
+        </div>
+          <div class="card-body" style=" border: #26A599">
+            <h5 class="card-title">PicNote</h5>
+            <p class="card-text">See what other students in your class are talking about during and outside of class. </p>
+            <div class = "row justify-content-center">
+                <div class = "col-sm-6" id = "loginblock">
+                    <form action="/api/API_KEY/login" id = "logininputs" method="POST">
+                      <b> Username </b><br> <input type="text" name="username" placeholder = "Name"><br><br>
+                      <b> Password </b><br> <input type="password" name="password" placeholder = "********" ><br><br>
+                      <!-- <input type="submit" value="Sign up for PicNote"> -->
+                      <br>
+                      <!-- name = "username"
+                      password="passwordfield" -->
+                      <div>
+                        <button id="loginButton" class="btn btn-primary">Submit</button>
+                        <!-- Beaware of states :( -->
+                      </div>
+                    </form>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    // $.ajax({
+    //  url: 'https://picnote.io/api/API_KEY/',
+    //  username: document.getElementById("username").innerHTML, //get username from HTML from
+    //  password: document.getElementById("password").innerHTML, //get password from HTML form
+    //  data: {
+    //     format: 'json'
+    //  },
+    //  success: function(data) {
+    //    // if login successful, then this happens:
+    //    data.preventDefault();
+    //    var profID = data.prof_id; //correct pathway?
+    //    window.location.href = "createclass.html?prof_id" + profID; // may have issues with profID TYPE
+    //  },
+    //  type: 'POST'
+    // });
+    //   $("#logininputs").onclick("submit", function(){
+    //     $.ajax({
+    //       method: "POST",
+    //       url: "https://picnote.io/api/API_KEY/",
+    //       data: { 
+    //         username: document.getElementById("username").innerHTML,
+    //         password: document.getElementById("password").innerHTML
+    //     }})
+    //       .done(function( msg ) {
+    //           window.location.href = msg.redirect;
+    //       });
+    //   })
+    // // TEST CODE
+    // var link = document.getElementById("loginButton");
+    // link.onclick = (e) => {
+    // e.preventDefault();
+    // console.log("hello world");
+    // // window.location.href = "createclass.html?prof_id" + 1234;
+    //  }
+  </script>
+
+</body>
+</html>
