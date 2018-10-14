@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request,render_template
 import json
 from DatabaseUtilities import DatabaseUtilities
 from flask_s3 import FlaskS3
@@ -84,18 +84,14 @@ def post_note(key,course_id):
     response = authenticate_api_key(key)
     if(response['response'] != '200'):
         return jsonify(response)
-    if request.method == "POST":
-        if 'note_img' in request.files:
-            global img_file
-            img_file = photos.save((secure_filename(request.files['note_img'].filename)))
+    #Checks for a photo upload
+    if request.method == "POST" and "photo" in request.files:
+        request.files["photo"].filename = str(hash(request.files["photo"].filename))+".jpg"
+        filename = photos.save(request.files["photo"])
 
-        note_text = request.form.getlist("note_text")
+        print(request.form)
+        #TODO: FINISH UP WRITING TO THE DATABASE FOR THE PROPER ROUTING
 
-        # Line [77] generates the s3 bucket link to store in the database
-
-        s3_url = app.url_for(img_file)
-
-        db.write_note_entry(s3_url,note_text,course_id)
     return jsonify({'response':'200','message':'successfully written a note'})
     
         
@@ -128,6 +124,11 @@ def get_notes_by_section(key,section_id):
     if db.section_id_exists(section_id):
         return json.dumps(db.read_notes_by_section(section_id))
     return jsonify({'response':'200'})
+
+#TEST ROUTE
+@app.route('/api/test')
+def test_route():
+    return render_template("index.html")
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080) #TAKE OUT DEBUG IN PRODUCTION
