@@ -16,17 +16,18 @@ s3_app = FlaskS3()
 s3_app.init_app(app)
 app.config['FLASKS3_BUCKET_NAME'] = 'picnoteimages'
 
+#Loads credentials for the API key for the single user (assumption of one user for testing)
 with open('creds.json','r') as f:
     valid_keys = json.load(f)
 
+#Authenticates users based on the API key usage
 def authenticate_api_key(key):
     if valid_keys['username'] == key:
         return {'response':'200','message':'API Key verified'}
     return {'response':'401','message':'Authentication failed:Illegal API key'}
-    
 
-@app.route('/', methods=['GET'])
 #Inner facing RESTful API for picNote database access. Simple landing page
+@app.route('/', methods=['GET'])
 def index():
     return jsonify({'response': '200', 'message' : 'landing page'})
 
@@ -105,9 +106,10 @@ def get_notes_by_prof(key,prof_id):
         return jsonify(json_return)
     
     if db.prof_id_exists(prof_id):
-        return jsonify(db.read_notes_by_prof(prof_id))
+        return json.dumps((db.read_notes_by_prof(prof_id)))
     return jsonify({'response':'200'})
 
+#TODO: FINISH THE JSON.DUMPS ON THE BOTTOM
 @app.route('/api/<string:key>/<string:course_id>/get_notes_by_course',methods= ['GET'])
 def get_notes_by_course(key,course_id):
     json_return = authenticate_api_key(key)
@@ -115,7 +117,7 @@ def get_notes_by_course(key,course_id):
         return jsonify(json_return)
     
     if db.course_id_exists(course_id):
-        return jsonify(db.read_notes_by_course(course_id))
+        return json.dumps((db.read_notes_by_course(course_id)))
     return jsonify({'response':'200'})
 
 @app.route('/api/<string:key>/<string:section_id>/get_notes_by_section',methods=['GET'])
@@ -124,10 +126,8 @@ def get_notes_by_section(key,section_id):
     if(json_return['response'] != '200'):
         return jsonify(json_return)
     if db.section_id_exists(section_id):
-        return jsonify(db.read_notes_by_section)
-    return jsonify({'response:200'})
-
-
+        return json.dumps(db.read_notes_by_section(section_id))
+    return jsonify({'response':'200'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080) #TAKE OUT DEBUG IN PRODUCTION
