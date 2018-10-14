@@ -14,6 +14,16 @@ app.config['UPLOADED_PHOTOS_DEST'] = './static/img'
 configure_uploads(app,photos)
 s3_app = FlaskS3()
 s3_app.init_app(app)
+app.config['FLASKS3_BUCKET_NAME'] = 'picnoteimages'
+
+with open('creds.json','r') as f:
+    valid_keys = json.load(f)
+
+def authenticate_api_key(key):
+    if valid_keys['username'] == key:
+        return {'response':'200','message':'API Key verified'}
+    return {'response':'401','message':'Authentication failed:Illegal API key'}
+    
 
 @app.route('/', methods=['GET'])
 #Inner facing RESTful API for picNote database access. Simple landing page
@@ -26,16 +36,15 @@ def api_landing():
 
 '''Validates the API key appended to the URL. This function will be repeatedly called in each route to verify that the URL is built correctly by the end user'''
 @app.route('/api/<string:key>', methods = ['GET'])
-def authenticate_api_key(key):
+def authenticate(key):
     #TODO: Move authentication to separate method and have it return a dict
     #TODO: Make the actual handler function, be responsible for returning jsonify
     #TODO: POTENTIAL ISSUES WITH LOCKING. MAKE SURE TO MOVE THIS FILE OPENING TO THE TOP OF THE APP WHEN YOU LOAD UP
-    with open('creds.json','r') as f:
-        valid_keys = json.load(f)
-    if valid_keys['username'] == key:
-        return {'response':'200','message':'API Key Verified'}
+    
     #TODO: FIX BECAUSE IT GIVES ISSUES WITH
-    return {'response':'401','message':'Authentication failed: Illegal API Key'}
+    return jsonify(authenticate_api_key(key))
+
+    
 
 '''Logs the professor by taking the username and password. Returns the professor ID if the authentication is successful. 403 error if authentication fails'''
 @app.route('/api/<string:key>/login', methods = ['POST'])
@@ -56,7 +65,7 @@ def login(key):
 def prof_add_course(key,prof_id):
     response = authenticate_api_key(key)
     if(response['response'] != '200'):
-        return response
+        return jsonify(response)
     if request.method == "POST":
         course_name = request.form.getlist("cname")
         section_list = request.form.getlist("slists")
@@ -71,9 +80,9 @@ def prof_add_course(key,prof_id):
 '''Posts a note with the course code supplied as a request parameter'''
 @app.route('/api/<string:key>/<string:course_id>/post_note', methods=['POST'])
 def post_note(key,course_id):
-    json_return = authenticate_api_key(key)
-    if(json_return['response'] != '200'):
-        return json_return
+    response = authenticate_api_key(key)
+    if(response['response'] != '200'):
+        return jsonify(response)
     if request.method == "POST":
         if 'note_img' in request.files:
             global img_file
@@ -84,27 +93,41 @@ def post_note(key,course_id):
         # Line [77] generates the s3 bucket link to store in the database
 
         s3_url = app.url_for(img_file)
+
         db.write_note_entry(s3_url,note_text,course_id)
+    return jsonify({'response':'200','message':'successfully written a note'})
     
         
-'''Gets notes depending on the request hash key. If the key belongs to none of the participating groups, returns a 404 error'''
-@app.route('/api/<string:key>/<string:hashed>/get_notes', methods=['GET'])
-def get_notes_by_id(key, hashed):
-    print(db.read_notes_by_prof(hashed))
-    #TODO: Split up the functions below so that they are in different routes
+@app.route('/api/<string:key>/<string:prof_id>/get_notes_by_prof', methods=['GET'])
+def get_notes_by_prof(key,prof_id):
     json_return = authenticate_api_key(key)
-    print(json_return['response'])
     if(json_return['response'] != '200'):
         return jsonify(json_return)
+    
+    if db.prof_id_exists(prof_id):
+        return jsonify(db.read_notes_by_prof(prof_id))
+    return jsonify({'response':'200'})
 
-    if db.prof_id_exists(hashed):
-        return jsonify(db.read_notes_by_prof(hashed))
-    elif db.course_id_exists(hashed):
-        return jsonify(db.read_notes_by_course(hashed))
-    elif db.section_id_exists(hashed):
-        return jsonify(db.read_notes_by_section(hashed))
-    else:
-        return jsonify({'response':'404','message':'Hashed ID does not match a professor, student or section'})
+@app.route('/api/<string:key>/<string:course_id>/get_notes_by_course',methods= ['GET'])
+def get_notes_by_course(key,course_id):
+    json_return = authenticate_api_key(key)
+    if(json_return['response'] != '200'):
+        return jsonify(json_return)
+    
+    if db.course_id_exists(course_id):
+        return jsonify(db.read_notes_by_course(course_id))
+    return jsonify({'response':'200'})
+
+@app.route('/api/<string:key>/<string:section_id>/get_notes_by_section',methods=['GET'])
+def get_notes_by_section(key,section_id):
+    json_return = authenticate_api_key(key)
+    if(json_return['response'] != '200'):
+        return jsonify(json_return)
+    if db.section_id_exists(section_id):
+        return jsonify(db.read_notes_by_section)
+    return jsonify({'response:200'})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080) #TAKE OUT DEBUG IN PRODUCTION
